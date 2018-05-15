@@ -85,10 +85,19 @@ end
 
 
 """
-# inith(Array{Float64, 1}, Array{Float64, 1}, Bool, Int)
+# inith - 5 method function
 
-## Argument 
+## Methods
 
+  * inith(bc::Bool, n::Int)
+  * inith(λ::Float64, bc::Bool, n::Int)
+  * inith(λ::Float64, Δ::Float64, bc::Bool, n::Int)
+  * inith(λ::Array{Float64, 1}, bc::Bool, n::Int)
+  * inith(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool, n::Int)
+
+# Argument 
+
+  * λ::Array{Float64, 1}        -   Uniform magnetic field 
   * λ::Array{Float64, 1}        -   array containing the onsite magnetic fields.
   * Δ::Array{Float64, 1}        -   array of easy-axis anisotropies.
   * bc::Bool                    -   boundary conditions for the chain
@@ -96,7 +105,7 @@ end
     +  False = open
   * n::Int                      -   system size
 
-## Returns
+# Returns
 
   * H::Array{Float64, 2}    -   Hamiltonian for spin-1/2 Heisenberg chain  
 
@@ -107,24 +116,6 @@ this function is converted in place to the Hamiltonian for a spin-1/2 Heisenberg
 chain. The onsite magnetic field is passed as an array to allow for disordered
 fields.  
 """
-function inith(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool, n::Int)
-  H = zeros(n, n) # initialize Hamiltonian
-  for a=1:2^n
-    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
-    for i=1:m
-      j = (i%n)+1 # determine nearest neighbour
-      if spin(a, n, i) == spin(a, n, j)
-        H[a, a] = H[a, a]+Δ[i]*0.25+0.5*(λ[i]*spin(a, n, i)+λ[j]*spin(a, n, i))
-      else
-        H[a, a] = H[a, a]-Δ[i]*0.25
-        b = flip(a, i, j)
-        H[a, b] = H[a, b]+0.5 
-      end
-    end
-  end
-  return H
-end
-
 function inith(bc::Bool, n::Int)
   H = zeros(2^n, 2^n) # initialize Hamiltonian
   for a=1:2^n
@@ -135,6 +126,78 @@ function inith(bc::Bool, n::Int)
         H[a, a] = H[a, a]+0.25
       else
         H[a, a] = H[a, a]-0.25
+        b = flip(a, i, j)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H
+end
+
+function inith(λ::Float64, bc::Bool, n::Int)
+  H = zeros(2^n, 2^n) # initialize Hamiltonian
+  for a=1:2^n
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(a, n, i) == spin(a, n, j)
+        H[a, a] = H[a, a]+0.25-0.5*λ*(spin(a, n, i)+spin(a, n, j))
+      else
+        H[a, a] = H[a, a]-0.25-0.5*λ*(spin(a, n, i)+spin(a, n, j))
+        b = flip(a, i, j)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H 
+end
+
+function inith(λ::Float64, Δ::Float64, bc::Bool, n::Int)
+  H = zeros(2^n, 2^n) # initialize Hamiltonian
+  for a=1:2^n
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(a, n, i) == spin(a, n, j)
+        H[a, a] = H[a, a]+Δ*0.25-0.5*λ*(spin(a, n, i)+spin(a, n, j))
+      else
+        H[a, a] = H[a, a]-Δ*0.25-0.5*λ*(spin(a, n, i)+spin(a, n, j))
+        b = flip(a, i, j)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H 
+end
+
+function inith(λ::Array{Float64, 1}, bc::Bool, n::Int)
+  H = zeros(2^n, 2^n) # initialize Hamiltonian
+  for a=1:2^n
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(a, n, i) == spin(a, n, j)
+        H[a, a] = H[a, a]+0.25-0.5*(λ[i]*spin(a, n, i)+λ[j]*spin(a, n, j))
+      else
+        H[a, a] = H[a, a]-0.25-0.5*(λ[i]*spin(a, n, i)+λ[j]*spin(a, n, j))
+        b = flip(a, i, j)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H
+end
+
+function inith(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool, n::Int)
+  H = zeros(2^n, 2^n) # initialize Hamiltonian
+  for a=1:2^n
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(a, n, i) == spin(a, n, j)
+        H[a, a] = H[a, a]+Δ[i]*0.25-0.5*(λ[i]*spin(a, n, i)+λ[j]*spin(a, n, j))
+      else
+        H[a, a] = H[a, a]-Δ[i]*0.25-0.5*(λ[i]*spin(a, n, i)+λ[j]*spin(a, n, j))
         b = flip(a, i, j)
         H[a, b] = H[a, b]+0.5 
       end
