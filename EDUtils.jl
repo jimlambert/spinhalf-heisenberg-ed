@@ -3,7 +3,8 @@ module EDUtils
 export flip!
 export getid
 export getstate
-
+export inith
+export initsz
 
 """
 # flip!(Int, Int, Int)
@@ -95,7 +96,7 @@ end
   * inith(λ::Array{Float64, 1}, bc::Bool, n::Int)
   * inith(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool, n::Int)
 
-# Argument 
+# Arguments 
 
   * λ::Array{Float64, 1}        -   Uniform magnetic field 
   * λ::Array{Float64, 1}        -   array containing the onsite magnetic fields.
@@ -205,5 +206,51 @@ function inith(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool, n::Int)
   end
   return H
 end
+
+"""
+initsz - 1 method function
+
+## Methods
+
+  * initsz(n::Int, i::Int)
+
+# Arguments
+
+  * n::Int    -   system size.
+  * i::Int    -   site on which sz operator acts.
+
+# Returns
+
+  *sz::Array{Float64, 2}    -   The sz array spin-half particle at position i of
+                                length n heisenberg chain.
+
+## Description
+
+This function constructs the sz operator acting on the ith site of a spin-1/2
+chain.
+
+"""
+function initsz(n::Int, i::Int)
+  
+  id = [[1, 0] [0, 1]]
+  σz = [[1, 0] [0, -1]]
+  tot::Array{Int64, 2}
+
+  if i=1
+    tot = σz  
+  else
+    tot = id
+  end
+  for i=1:(i-1)
+    tot = kron(tot, id)
+  end
+  tot = kron(tot, σz)
+  for i=(i+1):n
+    tot = kron(tot, id)
+  end
+
+
+end
+
 
 end # module EDUtils
