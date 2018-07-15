@@ -1,4 +1,4 @@
-module EDUtils
+module EDutils
 
 export flip!
 export getid
@@ -234,23 +234,24 @@ function initsz(n::Int, i::Int)
   
   id = [[1, 0] [0, 1]]
   σz = [[1, 0] [0, -1]]
-  tot::Array{Int64, 2}
+  tot = Array{Int64, 2}
 
-  if i=1
+  if i==1
     tot = σz  
   else
     tot = id
   end
-  for i=1:(i-1)
+  for j=1:(i-1)
     tot = kron(tot, id)
   end
   tot = kron(tot, σz)
-  for i=(i+1):n
+  for j=(i+1):n
     tot = kron(tot, id)
   end
 
+  return tot
 
 end
 
 
-end # module EDUtils
+end # module EDutils
