@@ -4,7 +4,7 @@ export flip!
 export getid
 export getstate
 export inith
-export initsz
+export initσz
 
 """
 # flip!(Int, Int, Int)
@@ -230,7 +230,7 @@ This function constructs the sz operator acting on the ith site of a spin-1/2
 chain.
 
 """
-function initsz(n::Int, i::Int)
+function initσz(n::Int, i::Int)
   
   id = [[1, 0] [0, 1]]
   σz = [[1, 0] [0, -1]]
