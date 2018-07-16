@@ -29,7 +29,7 @@ for sz in szarr
   expval = []
   println(sz)
   for τ in τarr
-    push!(expval, trace(ρ*expm(-τ*H)*sz*expm(τ*H)*sz_0))
+    push!(expval, trace(ρ*expm(τ*H)*sz*expm(-τ*H)*sz_0))
   end
   push!(sz_expvals, expval)
 end
