@@ -2,37 +2,41 @@ include("EDutils.jl")
 
 import EDutils
 
-N = 2
-β = 10
+N = 10
+β = 100
 H = EDutils.inith(true, N)
-τstps = 11
+τstps = 101
 τarr = linspace(0.0, β, τstps)
 szarr = []
 
 # determine eigenvalues/vectors of H
+
 eigv, U = eig(H)
+
+println("exact diagonalization complete")
 
 # initialize density matrix
 H = diagm(eigv, 0)
 Z = trace(expm(-β*H))
 ρ = expm(-β*H)/Z
-print(ρ)
 # generate sz operators
 for i::Int=1:(N/2)
   push!(szarr, inv(U)*0.5*EDutils.initσz(N, i)*U)
 end
 
 sz_0 = szarr[1]
-sz_expvals = []
-
+sz_τexpvals = []
+sz_texpvals = []
 for sz in szarr
-  expval = []
-  println(sz)
+  τexpval = []
+  texpval = []
   for τ in τarr
-    push!(expval, trace(ρ*expm(τ*H)*sz*expm(-τ*H)*sz_0))
+    push!(τexpval, trace(ρ*expm(τ*H)*sz*expm(-τ*H)*sz_0))
+    push!(texpval, trace(ρ*expm(1im*τ*H)*sz*expm(-1im*τ*H)*sz_0))
   end
-  push!(sz_expvals, expval)
+  push!(sz_τexpvals, τexpval)
+  push!(sz_texpvals, texpval)
 end
 
-println(sz_expvals)
-
+writedlm("./edtau.dat", sz_τexpvals)
+writedlm("./edt.dat", sz_texpvals)
