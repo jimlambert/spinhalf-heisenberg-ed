@@ -237,16 +237,19 @@ function initσz(n::Int, i::Int)
   tot = Array{Int64, 2}
 
   if i==1
-    tot = σz  
+    tot = σz
+    for i=2:n
+      tot = kron(tot, id)
+    end
   else
     tot = id
-  end
-  for j=1:(i-1)
-    tot = kron(tot, id)
-  end
-  tot = kron(tot, σz)
-  for j=(i+1):n
-    tot = kron(tot, id)
+    for j=2:(i-1)
+      tot = kron(tot, id)
+    end
+    tot = kron(tot, σz)
+    for j=(i+1):n
+      tot = kron(tot, id)
+    end
   end
 
   return tot
