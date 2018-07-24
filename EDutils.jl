@@ -98,13 +98,13 @@ end
 
 # Arguments 
 
-  * λ::Array{Float64, 1}        -   Uniform magnetic field 
-  * λ::Array{Float64, 1}        -   array containing the onsite magnetic fields.
-  * Δ::Array{Float64, 1}        -   array of easy-axis anisotropies.
-  * bc::Bool                    -   boundary conditions for the chain
+  * λ::Array{Float64, 1}    -   Uniform magnetic field 
+  * λ::Array{Float64, 1}    -   array containing the onsite magnetic fields.
+  * Δ::Array{Float64, 1}    -   array of easy-axis anisotropies.
+  * bc::Bool                -   boundary conditions for the chain
     +  True = periodic
     +  False = open
-  * n::Int                      -   system size
+  * n::Int                  -   system size
 
 # Returns
 
@@ -254,6 +254,213 @@ function initσz(n::Int, i::Int)
 
   return tot
 
+end
+
+"""
+initMagBlock - 5 method function
+
+# Methods
+
+  * initMagBlock(bc::Bool, n::Int, mz::Int)
+  * initMagBlock(λ::Float64, bc::Bool, n::Int, mz::Int)
+  * initMagBlock(λ::Float64, Δ::Float64, bc::Bool, n::Int, mz::Int)
+  * initMagBlock(λ::Array{Float64, 1}, bc::Bool, n::Int, mz::Int)
+  * initMagBlock(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool, n::Int,
+                 mz::Int)
+
+## Arguments 
+
+  * λ::Float64              -   Uniform magnetic field 
+  * Δ::Float64              -   Uniform uniaxial anisotropy
+  * λ::Array{Float64, 1}    -   array containing the onsite magnetic fields.
+  * Δ::Array{Float64, 1}    -   array of easy-axis anisotropies.
+  * bc::Bool                -   boundary conditions for the chain
+    +  True = periodic
+    +  False = open
+  * n::Int                  -   system size
+  * mz::Int                  -   magnetization subspace
+
+## Returns
+
+  * H::Array{Float64, 2}    -   Hamiltonian for spin-1/2 Heisenberg chain  
+
+# Description
+
+This function initializes a block of the Hamiltonian that leverage the
+conservation of magnetization of the Hamiltonian. 
+"""
+
+function initMagBlock(bc::Bool, n::Int, mz::Int)
+  
+  # select all states with given magnetization mz
+  mz_states = []
+  dm::Int = 0 
+  for a=1:2^n
+    tot::Int = 0
+    for i=1:n
+      if 1==spin(a, n, i)
+        tot += 1
+      else
+        tot -= 1
+      end
+    end
+    if tot==mz
+      dm += 1
+      push!(mz_states, a)  
+    end
+  end
+ 
+  H = zeros(dm, dm) # initialize Hamiltonian
+  for a=1:dm
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(mz_states[a], n, i) == spin(mz_states[a], n, j)
+        H[a, a] = H[a, a]+0.25
+      else
+        H[a, a] = H[a, a]-0.25
+        b = flip(mz_states[a], i, j)
+        b = findfirst(mz_states, b)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H, mz_states
+end
+
+function initMagBlock(λ::Float64, bc::Bool, n::Int, mz::Int)
+  # select all states with given magnetization mz
+  mz_states = []
+  dm::Int = 0 
+  for a=1:2^n
+    tot::Int = 0
+    for i=1:n
+      if 1==spin(a, n, i)
+        tot += 1
+      else
+        tot -= 1
+      end
+    end
+    if tot==mz
+      dm += 1
+      push!(mz_states, a)  
+    end
+  end
+ 
+  H = zeros(dm, dm) # initialize Hamiltonian
+  for a=1:dm
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(mz_states[a], n, i) == spin(mz_states[a], n, j)
+        H[a, a] = H[a, a]+0.25-0.5*λ*(spin(mz_states[a], n, i)+spin(mz_states[a], n, j))
+      else
+        H[a, a] = H[a, a]-0.25-0.5*λ*(spin(mz_states[a], n, i)+spin(mz_states[a], n, j))
+        b = flip(mz_states[a], i, j)
+        b = findfirst(mz_states, b)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H, mz_states
+end
+
+function initMagBlock(λ::Float64, Δ::Float64, bc::Bool, n::Int, mz::Int)
+  # select all states with given magnetization mz
+  mz_states = []
+  dm::Int = 0 
+  for a=1:2^n
+    tot::Int = 0
+    for i=1:n
+      if 1==spin(a, n, i)
+        tot += 1
+      else
+        tot -= 1
+      end
+    end
+    if tot==mz
+      dm += 1
+      push!(mz_states, a)  
+    end
+  end
+
+  H = zeros(dm, dm) # initialize Hamiltonian
+  for a=1:dm
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(mz_states[a], n, i) == spin(mz_states[a], n, j)
+        H[a, a] = H[a, a]+Δ*0.25-0.5*λ*(spin(mz_states[a], n, i)+spin(mz_states[a], n, j))
+      else
+        H[a, a] = H[a, a]-Δ*0.25-0.5*λ*(spin(mz_states[a], n, i)+spin(mz_states[a], n, j))
+        b = flip(mz_states[a], i, j)
+        b = findfirst(mz_states, b)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H, mz_states
+end
+
+function initMagBlock(λ::Array{Float64, 1}, bc::Bool, n::Int, mz::Int)
+  # select all states with given magnetization mz
+  mz_states = []
+  dm::Int = 0 
+  for a=1:2^n
+    tot::Int = 0
+    for i=1:n
+      if 1==spin(a, n, i)
+        tot += 1
+      else
+        tot -= 1
+      end
+    end
+    if tot==mz
+      dm += 1
+      push!(mz_states, a)  
+    end
+  end
+
+  H = zeros(dm, dm) # initialize Hamiltonian
+  for a=1:dm
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(a, n, i) == spin(a, n, j)
+        H[a, a] = H[a, a]+0.25-0.5*(λ[i]*spin(mz_states[a], n, i)
+                                   +λ[j]*spin(mz_states[a], n, j))
+      else
+        H[a, a] = H[a, a]-0.25-0.5*(λ[i]*spin(mz_states[a], n, i)
+                                   +λ[j]*spin(mz_states[a], n, j))
+        b = flip(mz_states[a], i, j)
+        b = findfirst(mz_states, b)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H, mz_states
+end
+
+function initMagBlock(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool,
+                      n::Int, mz::Int)
+  H = zeros(2^n, 2^n) # initialize Hamiltonian
+  for a=1:2^n
+    bc ? m=n : m=n-1  # if the chain is open, only n-1 bonds. 
+    for i=1:m
+      j = (i%n)+1 # determine nearest neighbour
+      if spin(a, n, i) == spin(a, n, j)
+        H[a, a] = H[a, a]+Δ[i]*0.25-0.5*(λ[i]*spin(mz_states[a], n, i)
+                                        +λ[j]*spin(mz_states[a], n, j))
+      else
+        H[a, a] = H[a, a]-Δ[i]*0.25-0.5*(λ[i]*spin(mz_states[a], n, i)
+                                        +λ[j]*spin(mz_states[a], n, j))
+        b = flip(mz_states[a], i, j)
+        b = findfirst(mz_states, b)
+        H[a, b] = H[a, b]+0.5 
+      end
+    end
+  end
+  return H, mz_states
 end
 
 

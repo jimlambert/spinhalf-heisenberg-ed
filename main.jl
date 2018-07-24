@@ -5,7 +5,7 @@ import EDutils
 N = 10
 β = 100
 H = EDutils.inith(true, N)
-τstps = 101
+τstps = 501
 τarr = linspace(0.0, β, τstps)
 szarr = []
 
@@ -39,4 +39,5 @@ for sz in szarr
 end
 
 writedlm("./edtau.dat", sz_τexpvals)
-writedlm("./edt.dat", sz_texpvals)
+writedlm("./edtre.dat", real(sz_texpvals))
+writedlm("./edtim.dat", imag(sz_texpvals))
