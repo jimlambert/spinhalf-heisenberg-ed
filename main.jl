@@ -5,8 +5,8 @@ import EDutils
 N = 10
 β = 100
 H = EDutils.inith(true, N)
-τstps = 501
-τarr = linspace(0.0, β, τstps)
+τstps = 101
+τarr = linspace(0.0, 10, τstps)
 szarr = []
 
 # determine eigenvalues/vectors of H
@@ -28,16 +28,16 @@ sz_0 = szarr[1]
 sz_τexpvals = []
 sz_texpvals = []
 for sz in szarr
-  τexpval = []
+  #τexpval = []
   texpval = []
   for τ in τarr
-    push!(τexpval, trace(ρ*expm(τ*H)*sz*expm(-τ*H)*sz_0))
-    push!(texpval, trace(ρ*expm(1im*τ*H)*sz*expm(-1im*τ*H)*sz_0))
+    #push!(τexpval, trace(ρ*expm(τ*H)*sz*expm(-τ*H)*sz_0))
+    push!(texpval, trace(ρ*expm((0.5*β+1im*τ)*H)*sz*expm((-0.5*β-1im*τ*H))*sz_0))
   end
-  push!(sz_τexpvals, τexpval)
+  #push!(sz_τexpvals, τexpval)
   push!(sz_texpvals, texpval)
 end
 
-writedlm("./edtau.dat", sz_τexpvals)
-writedlm("./edtre.dat", real(sz_texpvals))
-writedlm("./edtim.dat", imag(sz_texpvals))
+#writedlm("./edtau.dat", sz_τexpvals)
+writedlm("./edtre-mixt.dat", real(sz_texpvals))
+writedlm("./edtim-mixt.dat", imag(sz_texpvals))
