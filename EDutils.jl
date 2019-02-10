@@ -5,6 +5,7 @@ export getid
 export getstate
 export inith
 export initσz
+export initσx
 
 """
 # flip!(Int, Int, Int)
@@ -81,7 +82,7 @@ to the given id. Useful when constructing the hamiltonian matrix and comparing
 diagonal/off-diagonal terms.
 """
 function spin(id::Int, n::Int, i::Int)
-  return digits(id-1, 2, n)[i]
+  return digits(id-1, base=2, pad=n)[i]
 end
 
 
@@ -208,11 +209,11 @@ function inith(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool, n::Int)
 end
 
 """
-initsz - 1 method function
+initσz - 1 method function
 
 ## Methods
 
-  * initsz(n::Int, i::Int)
+  * initσz(n::Int, i::Int)
 
 # Arguments
 
@@ -247,6 +248,55 @@ function initσz(n::Int, i::Int)
       tot = kron(tot, id)
     end
     tot = kron(tot, σz)
+    for j=(i+1):n
+      tot = kron(tot, id)
+    end
+  end
+
+  return tot
+
+end
+
+"""
+initσx - 1 method function
+
+## Methods
+
+  * initσz(n::Int, i::Int)
+
+# Arguments
+
+  * n::Int    -   system size.
+  * i::Int    -   site on which sz operator acts.
+
+# Returns
+
+  *sx::Array{Float64, 2}    -   The sz array spin-half particle at position i of
+                                length n heisenberg chain.
+
+## Description
+
+This function constructs the sz operator acting on the ith site of a spin-1/2
+chain.
+
+"""
+function initσx(n::Int, i::Int)
+  
+  id = [[1, 0] [0, 1]]
+  σx = [[0, 1] [1, 0]]
+  tot = Array{Int64, 2}
+
+  if i==1
+    tot = σx
+    for i=2:n
+      tot = kron(tot, id)
+    end
+  else
+    tot = id
+    for j=2:(i-1)
+      tot = kron(tot, id)
+    end
+    tot = kron(tot, σx)
     for j=(i+1):n
       tot = kron(tot, id)
     end
