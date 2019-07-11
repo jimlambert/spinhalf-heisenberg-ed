@@ -1,6 +1,6 @@
 module EDutils
 
-export flip!
+export flip
 export getid
 export getstate
 export inith
@@ -8,7 +8,7 @@ export initσz
 export initσx
 
 """
-# flip!(Int, Int, Int)
+# flip(Int, Int, Int)
 
 ## Arguments
 
@@ -370,7 +370,7 @@ function initMagBlock(bc::Bool, n::Int, mz::Int)
       else
         H[a, a] = H[a, a]-0.25
         b = flip(mz_states[a], i, j)
-        b = findfirst(mz_states, b)
+        b = findall(x->x==b, mz_states)[1]
         H[a, b] = H[a, b]+0.5 
       end
     end
@@ -407,7 +407,7 @@ function initMagBlock(λ::Float64, bc::Bool, n::Int, mz::Int)
       else
         H[a, a] = H[a, a]-0.25-0.5*λ*(spin(mz_states[a], n, i)+spin(mz_states[a], n, j))
         b = flip(mz_states[a], i, j)
-        b = findfirst(mz_states, b)
+        b = findall(x->x==b, mz_states)[1]
         H[a, b] = H[a, b]+0.5 
       end
     end
@@ -444,7 +444,7 @@ function initMagBlock(λ::Float64, Δ::Float64, bc::Bool, n::Int, mz::Int)
       else
         H[a, a] = H[a, a]-Δ*0.25-0.5*λ*(spin(mz_states[a], n, i)+spin(mz_states[a], n, j))
         b = flip(mz_states[a], i, j)
-        b = findfirst(mz_states, b)
+        b = findall(x->x==b, mz_states)[1]
         H[a, b] = H[a, b]+0.5 
       end
     end
@@ -483,7 +483,7 @@ function initMagBlock(λ::Array{Float64, 1}, bc::Bool, n::Int, mz::Int)
         H[a, a] = H[a, a]-0.25-0.5*(λ[i]*spin(mz_states[a], n, i)
                                    +λ[j]*spin(mz_states[a], n, j))
         b = flip(mz_states[a], i, j)
-        b = findfirst(mz_states, b)
+        b = findall(x->x==b, mz_states)[1]
         H[a, b] = H[a, b]+0.5 
       end
     end
@@ -505,7 +505,7 @@ function initMagBlock(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool,
         H[a, a] = H[a, a]-Δ[i]*0.25-0.5*(λ[i]*spin(mz_states[a], n, i)
                                         +λ[j]*spin(mz_states[a], n, j))
         b = flip(mz_states[a], i, j)
-        b = findfirst(mz_states, b)
+        b = findall(x->x==b, mz_states)[1]
         H[a, b] = H[a, b]+0.5 
       end
     end

@@ -2,26 +2,32 @@ include("EDutils.jl")
 
 using LinearAlgebra
 
-N = 4
+N = 14
 q = pi
 β = 10
 tmin = 0
 tmax = 5
 tstps = 11
 genH = EDutils.inith(true, N) # generator Hamiltonian
-evoH = EDutils.inith(-0.5, true, N) # evolution Hamiltonian
-tarr = range(tmin, stop=tmax, length=tstps)
-szarr = [] # array of sz operators in eigenbasis
-sxarr = [] # array of sx operators in eigenbasis
-amplitude = []
-szvals = []
-sz2vals = []
-sxvals = []
-sx2vals = []
+#evoH = EDutils.inith(-0.5, true, N) # evolution Hamiltonian
+#tarr = range(tmin, stop=tmax, length=tstps)
+#szarr = [] # array of sz operators in eigenbasis
+#sxarr = [] # array of sx operators in eigenbasis
+#amplitude = []
+#szvals = []
+#sz2vals = []
+#sxvals = []
+#sx2vals = []
 # determine eigenvalues/vectors of H
-F = eigen(genH)
-U = F.vectors
-println(F.values)
+
+#fullStates=EDutils.inith(true, N)
+#diagFull=eigen(fullStates)
+#println(diagFull.values)
+
+lowLyingStates=EDutils.initMagBlock(true,  N, 0)
+diagLow = eigen(lowLyingStates[1])
+println(diagLow.values[1])
+
 #gstate = (1.0/(2^(0.5)))*(U[:,1]-U[:,4])
 #
 #println("exact diagonalization complete")
