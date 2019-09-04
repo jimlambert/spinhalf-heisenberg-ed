@@ -227,7 +227,7 @@ initσz - 1 method function
 
 ## Description
 
-This function constructs the sz operator acting on the ith site of a spin-1/2
+This function constructs the σ_z operator acting on the ith site of a spin-1/2
 chain.
 
 """
@@ -262,7 +262,7 @@ initσx - 1 method function
 
 ## Methods
 
-  * initσz(n::Int, i::Int)
+  * initσx(n::Int, i::Int)
 
 # Arguments
 
@@ -276,7 +276,7 @@ initσx - 1 method function
 
 ## Description
 
-This function constructs the sz operator acting on the ith site of a spin-1/2
+This function constructs the σ_x operator acting on the ith site of a spin-1/2
 chain.
 
 """
@@ -284,6 +284,55 @@ function initσx(n::Int, i::Int)
   
   id = [[1, 0] [0, 1]]
   σx = [[0, 1] [1, 0]]
+  tot = Array{Int64, 2}
+
+  if i==1
+    tot = σx
+    for i=2:n
+      tot = kron(tot, id)
+    end
+  else
+    tot = id
+    for j=2:(i-1)
+      tot = kron(tot, id)
+    end
+    tot = kron(tot, σx)
+    for j=(i+1):n
+      tot = kron(tot, id)
+    end
+  end
+
+  return tot
+
+end
+
+"""
+initσy - 1 method function
+
+## Methods
+
+  * initσy(n::Int, i::Int)
+
+# Arguments
+
+  * n::Int    -   system size.
+  * i::Int    -   site on which sz operator acts.
+
+# Returns
+
+  *sx::Array{Float64, 2}    -   The sz array spin-half particle at position i of
+                                length n heisenberg chain.
+
+## Description
+
+This function constructs the σ_y operator acting on the ith site of a spin-1/2
+chain.
+
+"""
+function initσy(n::Int, i::Int)
+  
+  id = [[1, 0] [0, 1]]
+  σx = [[0, -1im] [im, 0]]
   tot = Array{Int64, 2}
 
   if i==1
