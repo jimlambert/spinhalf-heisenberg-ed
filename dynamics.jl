@@ -120,12 +120,14 @@ end # @time
 #legend()
 #show()
 
-qfi_σzqtre = 4*(σzqsqtre-(σzqtre.^2))
 
-imshow(qfi_σzqtre, cmap="hot", interpolation="nearest", origin="lower",
-       extent=[0, tarr[tstps], 0, 2*pi])
-xlabel("momentum")
-ylabel("time")
-colorbar()
-show()
+
+#qfi_σzqtre = 4*(σzqsqtre-(σzqtre.^2))
+#
+#imshow(qfi_σzqtre, cmap="hot", interpolation="nearest", origin="lower",
+#       extent=[0, pi, 0, tarr[tstps]], aspect=(pi/tarr[tstps]))
+#xlabel("momentum")
+#ylabel("time")
+#colorbar()
+#show()
 
