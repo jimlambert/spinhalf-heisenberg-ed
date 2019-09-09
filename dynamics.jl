@@ -1,7 +1,7 @@
 include("EDutils.jl")
 
 using LinearAlgebra
-using PyPlot
+using PyPlots
 
 # ------------------------------------------------------------------------------
 # TYPES
@@ -37,11 +37,11 @@ end
 # SETUP
 # ------------------------------------------------------------------------------
 
-N=4
+N=2
 
 qmin=0
 qmax=pi
-qstps=101
+qstps=N
 
 tmin=0
 tmax=10
@@ -93,13 +93,6 @@ evolham=EDutils.inith(0.0, 1.0, true, N)
 
 @time begin
 
-#Threads.@threads for i = 1:tstps
-#  ψ_t=exp(-1im*tarr[i]*evolham)*ψ_0
-#  #push!(magz_t, adjoint(ψ_t)*σzqarr[1]*ψ_t)
-#  magztre[i] = real(adjoint(ψ_t)*σzqarr[1]*ψ_t)
-#  magztim[i] = imag(adjoint(ψ_t)*σzqarr[1]*ψ_t)
-#end
-
 for i = 1:tstps
   ψ_t=exp(-1im*tarr[i]*evolham)*ψ_0
   Threads.@threads for j = 1:qstps
@@ -112,20 +105,23 @@ end
 
 end # @time
 
-#println(length(tarr))
-#for i = 1:qstps
-#  lab="q="*string(qarr[i]/pi)
-#  plot(tarr, magztre[:,i], label=lab)
-#end
-#legend()
-#show()
+qfit = 4*(σzqsqtre-(σzqtre.^2))
 
 
 
-#qfi_σzqtre = 4*(σzqsqtre-(σzqtre.^2))
+for i = 1:qstps
+  qcurr = fill(qarr[i], (1))
+  plot(qarr, tarr, qfit[:,i])
+end
+
+
+
+
+#qfi_σzqtre = 4 .*(σzqsqtre-(σzqtre.^2))
 #
 #imshow(qfi_σzqtre, cmap="hot", interpolation="nearest", origin="lower",
 #       extent=[0, pi, 0, tarr[tstps]], aspect=(pi/tarr[tstps]))
+#axvline(pi/2)
 #xlabel("momentum")
 #ylabel("time")
 #colorbar()
