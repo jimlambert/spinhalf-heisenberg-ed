@@ -8,7 +8,12 @@ export initσz
 export initσx
 
 """
-# flip(Int, Int, Int)
+# flip - 2 method function
+
+## Methods
+
+  * flip(s::Int, i::Int)
+  * flip(s::Int, i::Int, j::Int)
 
 ## Arguments
 
@@ -26,11 +31,15 @@ Function with one method. Accepts three integers, s, i, j and flips the ith and
 jth bits of the binary representation of the integer s. The integer s is
 modified in place.  
 """
+function flip(s::Int, i::Int)
+  f::Int64=2^(i-1)
+  return xor(s-1, f)+1
+end
+
 function flip(s::Int, i::Int, j::Int)
   f::Int64 = 2^(i-1) + 2^(j-1)
   return xor(s-1, f) + 1
 end
-
 
 """
 # getid(Array{Int64, 1})
@@ -113,7 +122,7 @@ end
 
 ## Description
 
-This function construct the spin-1/2 Heisenberg Hamiltonian. The array passed to
+This function constructs the spin-1/2 Heisenberg Hamiltonian. The array passed to
 this function is converted in place to the Hamiltonian for a spin-1/2 Heisenberg
 chain. The onsite magnetic field is passed as an array to allow for disordered
 fields.  
@@ -562,5 +571,35 @@ function initMagBlock(λ::Array{Float64, 1}, Δ::Array{Float64, 1}, bc::Bool,
   return H, mz_states
 end
 
+"""
+# initTfim
+
+## Methods
+
+# Arguments
+
+# Returns
+
+## Description
+
+This function construct 1D transverse field Ising model (TFIM), which is return
+as a 2D array. Both the spin exchange and the ising coupling can be adjusted.
+"""
+function initTfim(bc::Bool, n::Int, J::Float64, h::Float64)
+  H = zeros(2^n, 2^n)
+  for a = 1:2^n
+    bc ? m=n : m=n-1
+    for i = 1:m
+      j = (i%n) + 1
+      H[a, a] += J*0.25*spin(a, n, i)*spin(a, n, j)
+      b = flip(a, i)
+      H[a, b] += 0.5*h
+    end
+    if !bc
+      b = flip(a, n)
+      H[a, b] += 0.5*h
+    end
+  end
+end
 
 end # module EDutils
