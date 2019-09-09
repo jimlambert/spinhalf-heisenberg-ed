@@ -1,7 +1,8 @@
 include("EDutils.jl")
 
 using LinearAlgebra
-using PyPlot
+#using PyPlot
+#using Plots
 
 # ------------------------------------------------------------------------------
 # TYPES
@@ -50,13 +51,19 @@ tstps=101
 tarr=range(tmin, stop=tmax, length=tstps)
 qarr=range(qmin, stop=qmax, length=qstps)
 
-# compute the initial ground state
-initham=EDutils.inith(0.0, 1.0, true, N)
+# HEISENBERG MODEL -------------------------------------------------------------
+#initham=EDutils.inith(0.0, 1.0, true, N)
+#evolham=EDutils.inith(0.0, 1.0, true, N)
+# ------------------------------------------------------------------------------
+
+# TFIM -------------------------------------------------------------------------
+initham=EDutils.initTfim(true, N, 1.0, 0.0)
+evolham=EDutils.initTfim(true, N, 1.0, 1.0)
+# ------------------------------------------------------------------------------
+
+# initial groundstate
 initdiag=eigen(initham)
 ψ_0=initdiag.vectors[1,:]
-
-# create hamiltonian that will generate dynamics
-evolham=EDutils.inith(0.0, 1.0, true, N)
 
 # ------------------------------------------------------------------------------
 # INITIALIZE OPERATORS
@@ -91,7 +98,16 @@ evolham=EDutils.inith(0.0, 1.0, true, N)
 σzqsqtre=zeros(tstps, qstps)
 σzqsqtim=zeros(tstps, qstps)
 
-@time begin
+# Measure echo 
+
+projt=zeros(tstps)
+
+for i = 1:tstps
+  projt[i] = adjoint(ψ_0)*exp(-1im*tarr[i]*evolham)*ψ_0
+end
+
+
+#@time begin
 
 #Threads.@threads for i = 1:tstps
 #  ψ_t=exp(-1im*tarr[i]*evolham)*ψ_0
@@ -100,17 +116,17 @@ evolham=EDutils.inith(0.0, 1.0, true, N)
 #  magztim[i] = imag(adjoint(ψ_t)*σzqarr[1]*ψ_t)
 #end
 
-for i = 1:tstps
-  ψ_t=exp(-1im*tarr[i]*evolham)*ψ_0
-  Threads.@threads for j = 1:qstps
-    σzqtre[i,j] = real(adjoint(ψ_t)*σzqarr[j]*ψ_t)
-    σzqtim[i,j] = imag(adjoint(ψ_t)*σzqarr[j]*ψ_t)
-    σzqsqtre[i,j] = real(adjoint(ψ_t)*σzqsqarr[j]*ψ_t)
-    σzqsqtim[i,j] = imag(adjoint(ψ_t)*σzqsqarr[j]*ψ_t)
-  end
-end
+#for i = 1:tstps
+#  ψ_t=exp(-1im*tarr[i]*evolham)*ψ_0
+#  Threads.@threads for j = 1:qstps
+#    σzqtre[i,j] = real(adjoint(ψ_t)*σzqarr[j]*ψ_t)
+#    σzqtim[i,j] = imag(adjoint(ψ_t)*σzqarr[j]*ψ_t)
+#    σzqsqtre[i,j] = real(adjoint(ψ_t)*σzqsqarr[j]*ψ_t)
+#    σzqsqtim[i,j] = imag(adjoint(ψ_t)*σzqsqarr[j]*ψ_t)
+#  end
+#end
 
-end # @time
+#end # @time
 
 #println(length(tarr))
 #for i = 1:qstps
